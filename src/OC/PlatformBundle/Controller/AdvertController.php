@@ -44,7 +44,7 @@ class AdvertController extends Controller
      * viewAction : Viewing an advert logic
      */
 
-    public function viewAction($id)
+    /*public function viewAction($id)
     {
         $em = $this->getDoctrine()->getManager();
         $advert = $em->find("OCPlatformBundle:Advert", $id);
@@ -69,7 +69,7 @@ class AdvertController extends Controller
                 'skills' => $skills
             )
         );
-    }
+    }*/
 
 
     /*
