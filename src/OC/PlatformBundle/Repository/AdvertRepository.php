@@ -4,7 +4,6 @@ namespace OC\PlatformBundle\Repository;
 
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\ORM\EntityRepository;
-use Symfony\Component\Validator\Constraints\DateTime;
 
 /**
  * AdvertRepository
@@ -41,6 +40,12 @@ class AdvertRepository extends EntityRepository
 
 
     public function getAdvertWithApplications(){
+
+
+        $emConfig = $this->_em->getConfiguration();
+        $emConfig->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
+        $emConfig->addCustomDatetimeFunction('MONTH', 'DoctrineExtensions\Query\Mysql\Month');
+        $emConfig->addCustomDatetimeFunction('DAY', 'DoctrineExtensions\Query\Mysql\Day');
         $qb = $this
             ->createQueryBuilder('a')
             ->join('a.applications','apps','WITH','YEAR(app.date) > 2013');
@@ -52,9 +57,13 @@ class AdvertRepository extends EntityRepository
     }
 
     public function getAdvertWithApplicationsOnDate(\DateTime $date){
+        $emConfig = $this->_em->getConfiguration();
+        $emConfig->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
+        $emConfig->addCustomDatetimeFunction('MONTH', 'DoctrineExtensions\Query\Mysql\Month');
+        $emConfig->addCustomDatetimeFunction('DAY', 'DoctrineExtensions\Query\Mysql\Day');
         $qb = $this
             ->createQueryBuilder('a')
-            ->join('a.applications','apps','WITH','YEAR(app.date) > :year')
+            ->join('a.applications','apps','WITH','YEAR(apps.date) >= :year')
         ->setParameter('year',$date->format('Y'));
         /*->leftJoin('a.applications','app')
         ->addSelect('app');*/
@@ -64,6 +73,7 @@ class AdvertRepository extends EntityRepository
     }
 
     public function getAdvertWithCategories(array $categories){
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $qb = $this
             ->createQueryBuilder('a')
             ->join('a.categories','cats', 'WITH', ':cats in a.categories')
@@ -107,7 +117,7 @@ class AdvertRepository extends EntityRepository
 
     public function myFindDQL($id){
         $query = $this->_em->createQuery(
-            "SELECT a FROM Advert WHERE a.id = :id ");
+            'SELECT a FROM Advert WHERE a.id = :id ');
         $query->setParameter("id",$id);
 
         return $query->getSingleResult();
