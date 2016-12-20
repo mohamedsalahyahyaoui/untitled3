@@ -3,7 +3,9 @@
 namespace OC\PlatformBundle\Repository;
 
 use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Mapping\ClassMetadata;
 
 /**
  * AdvertRepository
@@ -13,7 +15,17 @@ use Doctrine\ORM\EntityRepository;
  */
 class AdvertRepository extends EntityRepository
 {
-    public function findMyAll(){
+    public function __construct(EntityManager $em, ClassMetadata $class)
+    {
+        parent::__construct($em, $class);
+        $emConfig = $this->_em->getConfiguration();
+        $emConfig->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
+        $emConfig->addCustomDatetimeFunction('MONTH', 'DoctrineExtensions\Query\Mysql\Month');
+        $emConfig->addCustomDatetimeFunction('DAY', 'DoctrineExtensions\Query\Mysql\Day');
+    }
+
+    public function findMyAll()
+    {
 
         $queryBuilder = $this->_em->createQueryBuilder()
             ->select('a')
@@ -26,99 +38,110 @@ class AdvertRepository extends EntityRepository
         return $result;
     }
 
-    public function myFind(){
+    public function myFind()
+    {
         $qb = $this->createQueryBuilder('a');
 
         $qb->where('a.author = :author')
-            -> setParameter('author','Me');
+            ->setParameter('author', 'Me');
 
-        $qb->orderBy('a.date','DESC');
+        $qb->orderBy('a.date', 'DESC');
 
         return $qb->getQuery()
             ->getResult();
     }
 
 
-    public function getAdvertWithApplications(){
-
-
-        $emConfig = $this->_em->getConfiguration();
-        $emConfig->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
-        $emConfig->addCustomDatetimeFunction('MONTH', 'DoctrineExtensions\Query\Mysql\Month');
-        $emConfig->addCustomDatetimeFunction('DAY', 'DoctrineExtensions\Query\Mysql\Day');
+    public function getAdvertWithApplications()
+    {
         $qb = $this
             ->createQueryBuilder('a')
-            ->join('a.applications','apps','WITH','YEAR(app.date) > 2013');
-            /*->leftJoin('a.applications','app')
-            ->addSelect('app');*/
-        return $qb
-            ->getQuery()
-            ->getResult();
-    }
+            ->join('a.applications', 'apps', 'WITH', 'YEAR(app.date) > 2013');
 
-    public function getAdvertWithApplicationsOnDate(\DateTime $date){
-        $emConfig = $this->_em->getConfiguration();
-        $emConfig->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
-        $emConfig->addCustomDatetimeFunction('MONTH', 'DoctrineExtensions\Query\Mysql\Month');
-        $emConfig->addCustomDatetimeFunction('DAY', 'DoctrineExtensions\Query\Mysql\Day');
-        $qb = $this
-            ->createQueryBuilder('a')
-            ->join('a.applications','apps','WITH','YEAR(apps.date) >= :year')
-        ->setParameter('year',$date->format('Y'));
         /*->leftJoin('a.applications','app')
         ->addSelect('app');*/
+
         return $qb
             ->getQuery()
             ->getResult();
     }
 
-    public function getAdvertWithCategories(array $categories){
-        /** @noinspection PhpUnusedLocalVariableInspection */
+    public function getAdvertWithApplicationsOnDate(\DateTime $date)
+    {
+        $emConfig = $this->_em->getConfiguration();
+        $emConfig->addCustomDatetimeFunction('YEAR', 'DoctrineExtensions\Query\Mysql\Year');
+        $emConfig->addCustomDatetimeFunction('MONTH', 'DoctrineExtensions\Query\Mysql\Month');
+        $emConfig->addCustomDatetimeFunction('DAY', 'DoctrineExtensions\Query\Mysql\Day');
         $qb = $this
             ->createQueryBuilder('a')
-            ->join('a.categories','cats', 'WITH', ':cats in a.categories')
-            ->setParameter('cats',$categories);
+            ->join('a.applications', 'apps', 'WITH', 'YEAR(apps.date) >= :year')
+            ->setParameter('year', $date->format('Y'));
+
+        /*->leftJoin('a.applications','app')
+        ->addSelect('app');*/
+
+        return $qb
+            ->getQuery()
+            ->getResult();
     }
 
-    public function myFindOne($id){
-        $qb = $this->createQueryBuilder('a');
-        $qb->where('a.id == :id')
-            ->setParameter(':id',$id);
+    public function getAdvertWithCategories(array $categories)
+    {
+
+        $qb = $this
+            ->createQueryBuilder('a')
+            ->join('a.categories', 'cats');
+        $qb->where($qb->expr()->in('cats.name', $categories));
+
         return $qb->getQuery()->getResult();
     }
 
-    public function findByAuthorAndDateOld($author,$year){
+    public function myFindOne($id)
+    {
+        $qb = $this->createQueryBuilder('a');
+        $qb->where('a.id == :id')
+            ->setParameter(':id', $id);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function findByAuthorAndDateOld($author, $year)
+    {
         $qb = $this->createQueryBuilder('a');
 
         $qb->where("a.author = :author")
-            ->setParameter("author",$author)
+            ->setParameter("author", $author)
             ->andWhere("a.date < :year")
-            ->setParameter("year",$year)
-            ->orderBy("a.date","DESC");
+            ->setParameter("year", $year)
+            ->orderBy("a.date", "DESC");
 
         return $qb->getQuery()->getResult();
     }
 
-    public function whereCurrentYear(QueryBuilder $qb){
+    public function whereCurrentYear(QueryBuilder $qb)
+    {
         $qb->andWhere("a.date BETWEEN :start AND :end")
-            ->setParameter("start" , new \DateTime(date('Y').'-01-01'))
-            ->setParameter("start" , new \DateTime(date('Y').'-12-31'));
+            ->setParameter("start", new \DateTime(date('Y').'-01-01'))
+            ->setParameter("start", new \DateTime(date('Y').'-12-31'));
     }
 
-    public function findByAuthorAndCurrentDate($autor){
+    public function findByAuthorAndCurrentDate($autor)
+    {
         $qb = $this->createQueryBuilder('a');
-        $qb ->where('a.author = :author')
-            ->setParameter("author",$autor);
+        $qb->where('a.author = :author')
+            ->setParameter("author", $autor);
         $this->whereCurrentYear($qb);
-        $qb->orderBy("a.date","DESC");
+        $qb->orderBy("a.date", "DESC");
 
         return $qb->getQuery()->getResult();
     }
 
-    public function myFindDQL($id){
+    public function myFindDQL($id)
+    {
         $query = $this->_em->createQuery(
-            'SELECT a FROM Advert WHERE a.id = :id ');
-        $query->setParameter("id",$id);
+            'SELECT a FROM Advert WHERE a.id = :id '
+        );
+        $query->setParameter("id", $id);
 
         return $query->getSingleResult();
 
