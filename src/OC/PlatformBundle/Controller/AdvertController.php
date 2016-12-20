@@ -28,7 +28,9 @@ class AdvertController extends Controller
         $em = $this->getDoctrine()->getManager();
 
         //$listAdverts = $em->getRepository("OCPlatformBundle:Advert")->findAll();
-        $listAdverts = $em->getRepository("OCPlatformBundle:Advert")->getAdvertWithApplicationsOnDate( new \DateTime(date('Y').'-01-01'));
+        //$listAdverts = $em->getRepository("OCPlatformBundle:Advert")->getAdvertWithApplicationsOnDate( new \DateTime('2017-01-01'));
+        //$listAdverts = $em->getRepository("OCPlatformBundle:Application")->getAppsWithAdverts(20);
+        $listAdverts = $em->getRepository("OCPlatformBundle:Advert")->getAdvertWithCategories(array("Integration"));
        // $listAdverts2 = $em->getRepository("OCPlatformBundle:Advert")->findById(1);
         return $this->render(
             "OCPlatformBundle:Advert:index.html.twig",

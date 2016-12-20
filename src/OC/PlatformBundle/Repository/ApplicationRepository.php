@@ -12,4 +12,11 @@ use Doctrine\ORM\EntityRepository;
  */
 class ApplicationRepository extends EntityRepository
 {
+    public function getAppsWithAdverts($limit)
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->join('a.advert', 'advs')
+            ->setMaxResults($limit);
+        return $qb->getQuery()->getResult();
+    }
 }
