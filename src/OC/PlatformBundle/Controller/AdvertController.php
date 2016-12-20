@@ -9,7 +9,6 @@ use OC\PlatformBundle\Entity\Application;
 use OC\PlatformBundle\Entity\Image;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 
@@ -44,7 +43,7 @@ class AdvertController extends Controller
      * viewAction : Viewing an advert logic
      */
 
-    /*public function viewAction($id)
+    public function viewAction($id)
     {
         $em = $this->getDoctrine()->getManager();
         $advert = $em->find("OCPlatformBundle:Advert", $id);
@@ -69,7 +68,7 @@ class AdvertController extends Controller
                 'skills' => $skills
             )
         );
-    }*/
+    }
 
 
     /*
@@ -159,7 +158,7 @@ class AdvertController extends Controller
      * EditAction: Editing Logic
      *
      */
-    public function editAction($id, Request $request)
+    public function editAction($id)
     {
         $em = $this->getDoctrine()->getManager();
 
