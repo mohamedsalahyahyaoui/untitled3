@@ -353,7 +353,7 @@ class Advert
     }
 
     /**
-     * Set nbCandidatures
+     * Set nb_Candidatures
      *
      * @param integer $nbCandidatures
      * @return Advert
