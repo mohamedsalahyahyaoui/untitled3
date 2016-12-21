@@ -71,6 +71,9 @@ class Advert
      */
     private $applications;
 
+
+    private $updatedAt;
+
     /**
      * Advert constructor.
      */
