@@ -377,12 +377,12 @@ class Advert
 
     public function increaseApplication()
     {
-        $this->nbApplications++;
+        $this->nbCandidatures++;
     }
 
     public function decreaseApplication()
     {
-        $this->nbApplications--;
+        $this->nbCandidatures--;
     }
 
     /**
