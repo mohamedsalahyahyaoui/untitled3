@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="application")
  * @ORM\Entity(repositoryClass="OC\PlatformBundle\Repository\ApplicationRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Application
 {
@@ -61,7 +62,7 @@ class Application
     /**
      * Get id
      *
-     * @return integer 
+     * @return integer
      */
     public function getId()
     {
@@ -84,7 +85,7 @@ class Application
     /**
      * Get author
      *
-     * @return string 
+     * @return string
      */
     public function getAuthor()
     {
@@ -107,7 +108,7 @@ class Application
     /**
      * Get content
      *
-     * @return string 
+     * @return string
      */
     public function getContent()
     {
@@ -130,7 +131,7 @@ class Application
     /**
      * Get date
      *
-     * @return \DateTime 
+     * @return \DateTime
      */
     public function getDate()
     {
@@ -153,10 +154,26 @@ class Application
     /**
      * Get advert
      *
-     * @return \OC\PlatformBundle\Entity\Advert 
+     * @return \OC\PlatformBundle\Entity\Advert
      */
     public function getAdvert()
     {
         return $this->advert;
+    }
+
+    /*
+     * @ORM\PrePersist
+     */
+    public function incrementNbCandidature()
+    {
+        $this->getAdvert()->increaseApplication();
+    }
+
+    /*
+     * @ORM\PreRemove
+     */
+    public function decrementNbCandidature()
+    {
+        $this->getAdvert()->decreaseApplication();
     }
 }

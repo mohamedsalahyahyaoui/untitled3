@@ -9,6 +9,7 @@ use OC\PlatformBundle\Entity\Application;
 use OC\PlatformBundle\Entity\Image;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 
@@ -207,6 +208,25 @@ class AdvertController extends Controller
             'OCPlatformBundle:Advert:menu.html.twig',
             array('listAdverts' => $listAdverts)
         );
+
+    }
+
+
+    public function testSlugAction()
+    {
+
+        //création d'un advert
+        $advert = new Advert();
+        $advert->setTitle('Recherche dev');
+        $advert->setAuthor('me');
+        $advert->setContent('we need a dev goddamnit');
+
+        //persistance de l'advert
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($advert);
+        $em->flush();
+
+        return new Response('Slug généré : '.$advert->getSlug());
 
     }
 }
